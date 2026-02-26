@@ -1,22 +1,67 @@
-<div
-  class="inventario-grid"
-  style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px"
->
-  {% for slot in itens %}
-  <div
-    class="item-slot"
-    style="border: 1px solid #5e432a; padding: 10px; background: #3d2b1f"
-  >
-    <img
-      src="/static/icons/{{ slot.item.imagem_icon }}"
-      alt="{{ slot.item.nome }}"
-      width="50"
-    />
-    <p><strong>{{ slot.item.nome }}</strong></p>
-    <p>Qtd: {{ slot.quantidade }}</p>
-    <small>{{ slot.item.descricao }}</small>
-  </div>
-  {% empty %}
-  <p>A tua mochila está vazia, Cowboy.</p>
-  {% endfor %}
-</div>
+<!doctype html>
+<html>
+  <head>
+    <title>Inventário - The West Clone</title>
+    <style>
+      body {
+        font-family: "Verdana", sans-serif;
+        background: #2c2114;
+        color: #e3c18b;
+      }
+      .container {
+        width: 80%;
+        margin: 20px auto;
+      }
+      .grid-inventario {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .item-card {
+        background: #3d2b1f;
+        border: 2px solid #5e432a;
+        padding: 10px;
+        text-align: center;
+        border-radius: 5px;
+      }
+      .item-tipo {
+        font-size: 0.7em;
+        color: #8b5a2b;
+        text-transform: uppercase;
+      }
+      .item-qtd {
+        font-weight: bold;
+        color: #fff;
+      }
+      .btn-voltar {
+        background: #5e432a;
+        color: white;
+        padding: 10px;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="btn-voltar">⬅ Voltar ao Painel</a>
+      <h1>Mochila de {{ personagem.nome }}</h1>
+
+      <div class="grid-inventario">
+        {% for slot in itens %}
+        <div class="item-card">
+          <div class="item-tipo">{{ slot.item.tipo }}</div>
+          <p><strong>{{ slot.item.nome }}</strong></p>
+          <div class="item-qtd">Quantidade: {{ slot.quantidade }}</div>
+          <p><small>{{ slot.item.descricao }}</small></p>
+          <p style="color: gold">${{ slot.item.valor_venda }}</p>
+        </div>
+        {% empty %}
+        <p>Não tens itens na mochila. Vai trabalhar, Cowboy!</p>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>

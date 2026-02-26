@@ -79,9 +79,10 @@ def iniciar_viagem_view(request):
 
 def inventario_view(request):
     personagem = Personagem.objects.get(usuario=request.user)
-    # Pegamos todos os itens da mochila desse personagem
-    itens_mochila = Inventario.objects.filter(personagem=personagem)
+    
+    itens_mochila = Inventario.objects.filter(personagem=personagem).select_related('item')
+    
     return render(request, 'jogo/inventario.html', {
-        'personagem': personagem, 
+        'personagem': personagem,
         'itens': itens_mochila
     })
