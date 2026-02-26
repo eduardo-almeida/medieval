@@ -1,7 +1,8 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Personagem
+import random
+from .models import Personagem, Item, Inventario
 
 @shared_task
 def concluir_trabalho(personagem_id, recompensa):
@@ -46,3 +47,29 @@ def concluir_viagem(personagem_id, novo_x, novo_y):
             "dinheiro": str(personagem.dinheiro) # Atualiza a carteira por segurança
         }
     )
+
+@shared_task
+def concluir_trabalho(personagem_id, recompensa_dinheiro):
+    from .models import Personagem
+    personagem = Personagem.objects.get(id=personagem_id)
+    
+    # 1. Adicionar Dinheiro
+    personagem.dinheiro += recompensa_dinheiro
+    
+    # 2. Lógica de Item (30% de chance de achar algo)
+    item_ganho_nome = ""
+    if random.random() <= 0.30:
+        # Tenta pegar um item aleatório do banco de dados
+        item_sorteado = Item.objects.order_by('?').first()
+        if item_sorteado:
+            inv, created = Inventario.objects.get_or_create(
+                personagem=personagem, 
+                item=item_sorteado
+            )
+            if not created:
+                inv.quantidade += 1
+                inv.save()
+            item_ganho_nome = item_sorteado.nome
+
+    personagem.esta_ocupado = False
+    personagem.save()

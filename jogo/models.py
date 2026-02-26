@@ -62,3 +62,26 @@ class Personagem(models.Model):
             diff = self.data_conclusao_tarefa - timezone.now()
             return int(diff.total_seconds())
         return 0
+
+class Item(models.Model):
+    TIPOS = (
+        ('FERRAMENTA', 'Ferramenta'),
+        ('RECURSO', 'Recurso'),
+        ('EQUIPAMENTO', 'Equipamento'),
+    )
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField()
+    valor_venda = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    tipo = models.CharField(max_length=20, choices=TIPOS, default='RECURSO')
+    imagem_icon = models.CharField(max_length=100, default="item-default.png")
+
+    def __str__(self):
+        return self.nome
+
+class Inventario(models.Model):
+    personagem = models.ForeignKey(Personagem, on_delete=models.CASCADE, related_name="mochila")
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantidade = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantidade}x {self.item.nome} de {self.personagem.nome}"

@@ -1,0 +1,22 @@
+<div
+  class="inventario-grid"
+  style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px"
+>
+  {% for slot in itens %}
+  <div
+    class="item-slot"
+    style="border: 1px solid #5e432a; padding: 10px; background: #3d2b1f"
+  >
+    <img
+      src="/static/icons/{{ slot.item.imagem_icon }}"
+      alt="{{ slot.item.nome }}"
+      width="50"
+    />
+    <p><strong>{{ slot.item.nome }}</strong></p>
+    <p>Qtd: {{ slot.quantidade }}</p>
+    <small>{{ slot.item.descricao }}</small>
+  </div>
+  {% empty %}
+  <p>A tua mochila está vazia, Cowboy.</p>
+  {% endfor %}
+</div>
