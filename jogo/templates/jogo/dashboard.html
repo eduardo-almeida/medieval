@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <title>The West - Clone</title>
+    <style>
+      body {
+        font-family: "Verdana", sans-serif;
+        background: #2c2114;
+        color: #e3c18b;
+      }
+      .painel {
+        border: 2px solid #5e432a;
+        padding: 20px;
+        width: 300px;
+        margin: 20px auto;
+        background: #3d2b1f;
+      }
+      .btn-trabalho {
+        background: #8b5a2b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      .btn-trabalho:disabled {
+        background: #555;
+      }
+      #log {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="painel">
+      <h2>Cowboy: {{ personagem.nome }}</h2>
+      <p>Dinheiro: $<span id="carteira">{{ personagem.dinheiro }}</span></p>
+      <p>Energia: {{ personagem.energia }}/100</p>
+
+      <hr />
+
+      <button
+        id="btnTrabalhar"
+        class="btn-trabalho"
+        onclick="iniciarTrabalho()"
+      >
+        Explorar Mina (5 seg)
+      </button>
+
+      <div id="status"></div>
+      <div id="log"></div>
+    </div>
+
+    <script>
+      // 1. Configurar a conexão WebSocket
+      const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+      const gameSocket = new WebSocket(
+        wsScheme + "://" + window.location.host + "/ws/jogo/",
+      );
+
+      // 2. Ouvir mensagens do Servidor (vêm do Celery/Channels)
+      gameSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+
+        if (data.tipo === "TRABALHO_CONCLUIDO") {
+          document.getElementById("carteira").innerText = data.dinheiro;
+          document.getElementById("status").innerText = "";
+          document.getElementById("btnTrabalhar").disabled = false;
+
+          const log = document.getElementById("log");
+          log.innerHTML += "<p>✅ " + data.mensagem + "</p>";
+        }
+      };
+
+      gameSocket.onclose = function (e) {
+        console.error("O túnel do jogo fechou inesperadamente.");
+      };
+
+      // 3. Função para disparar o trabalho via AJAX/Fetch
+      function iniciarTrabalho() {
+        document.getElementById("btnTrabalhar").disabled = true;
+        document.getElementById("status").innerText = "Trabalhando na mina...";
+
+        fetch("/iniciar-trabalho/", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        }).then((response) => {
+          if (!response.ok) {
+            alert("Erro ao iniciar trabalho!");
+            document.getElementById("btnTrabalhar").disabled = false;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
